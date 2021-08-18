@@ -1,7 +1,7 @@
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
-from raudal.serializers import AreaEjecutoraSerializer
-from raudal.models import AreaEjecutora
+from ..serializers import AreaEjecutoraSerializer
+from ..models import AreaEjecutora
 
 
 class AreaEjecutoraViewSet(ModelViewSet):

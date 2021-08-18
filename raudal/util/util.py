@@ -1,6 +1,12 @@
 from django.db.models import Model
 
 
+prov = (
+    'Pinar del Río', 'Artemisa', 'Mayabeque', 'La Habana', 'Matanzas', 'Villa Clara', 'Cienfuegos', 'Sancti Spiritus',
+    'Ciego de Ávila', 'Camagüey', 'Las Tunas', 'Holguín', 'Granma', 'Santiago de Cuba', 'Guantánamo',
+    'Isla de la Juventud')
+
+
 def get_fields_serializer(model_class: Model, validate_data: dict):
     fields = {}
     for key in validate_data.keys():
@@ -9,15 +15,21 @@ def get_fields_serializer(model_class: Model, validate_data: dict):
     return fields
 
 
-def get_area_resumen(area=None, cup_contratado=None, cuc_contratado=None, cup_year_ant=None, cuc_year_ant=None, cup_pendiente_ejecutar=None,
-                     cuc_pendiente_ejecutar=None, cup_valores_contratados_year_post=None, cuc_valores_contratados_year_post=None,
+def get_area_resumen(area=None, cup_contratado=None, cuc_contratado=None, cup_year_ant=None, cuc_year_ant=None,
+                     cup_pendiente_ejecutar=None,
+                     cuc_pendiente_ejecutar=None, cup_valores_contratados_year_post=None,
+                     cuc_valores_contratados_year_post=None,
                      cup_ejecutar_year_actual=None, cuc_ejecutar_year_actual=None, cup_ejecutado_year_actual=None,
-                     cuc_ejecutado_year_actual=None, fecha_inicio=None,pactada_terminacion=None, real_terminacion=None,
-                     year=None, pronostico=None, cliente=None, objeto_obra=None, total_contratado=None, total_contratado_year_ant=None,
-                     total_pendiente_ejecutar=None, total_year_post=None, total_ejecutar_year_actual=None, total_ejecutado_year_actual=None,
-                     total_cuc_ejecutado=None, total_cup_ejecutado=None, total_ejecutado=None, total_saldo_cuc_contrato=None,
-                     total_saldo_cup_contrato=None, total_saldo_contratado=None,  total_ejecutado_year_ant=None):
+                     cuc_ejecutado_year_actual=None, fecha_inicio=None, pactada_terminacion=None, real_terminacion=None,
+                     year=None, pronostico=None, cliente=None, objeto_obra=None, total_contratado=None,
+                     total_contratado_year_ant=None,
+                     total_pendiente_ejecutar=None, total_year_post=None, total_ejecutar_year_actual=None,
+                     total_ejecutado_year_actual=None,
+                     total_cuc_ejecutado=None, total_cup_ejecutado=None, total_ejecutado=None,
+                     total_saldo_cuc_contrato=None,
+                     total_saldo_cup_contrato=None, total_saldo_contratado=None, total_ejecutado_year_ant=None):
     area: dict = {
+        'type': 'normal' if area else 'total',
         'area': area if area else 'Total',
         'cup_contratado': cup_contratado,
         'cuc_contratado': cuc_contratado,
@@ -133,7 +145,7 @@ def __create_suplementos(cont):
 def __get_dict_contrato(cont, area=False, supl=False):
     contrato: dict = {
         'name': cont.name,
-        #'no_contrato': cont.no_contrato,
+        'no_contrato': cont.no_contrato,
         'firma': cont.firma,
         'year': cont.year,
         'cup': cont.cup,
@@ -177,9 +189,12 @@ def get_supl_cont_serializer(set_contrato: set):
     return out
 
 
-def __get_contrato_registro_serializer(cliente=None, no_contrato=None, valor_total=None, valor_contratado_year_actual1=None,
-                                       valor_contratado_year_actual2=None, valor_contratado_year_actual3=None, fecha_inicio=None,
-                                       fecha_terminacion=None, no_suplementos=None, valor_suplementos=None, observaciones=None):
+def __get_contrato_registro_serializer(cliente=None, no_contrato=None, valor_total=None,
+                                       valor_contratado_year_actual1=None,
+                                       valor_contratado_year_actual2=None, valor_contratado_year_actual3=None,
+                                       fecha_inicio=None,
+                                       fecha_terminacion=None, no_suplementos=None, valor_suplementos=None,
+                                       observaciones=None):
     contrato: dict = {
         'cliente': cliente,
         'no_contrato': no_contrato,
@@ -210,7 +225,8 @@ def __get_dict_contrato_registro_resumen(list_cont: list):
         valor_contratado3 += element['valor_contratado_year_actual3']
         cant_supl += element['no_suplementos']
         valor_supl_total += element['valor_suplementos']
-    contrato = __get_contrato_registro_serializer(valor_total=valor_total, valor_contratado_year_actual1=valor_contratado1,
+    contrato = __get_contrato_registro_serializer(valor_total=valor_total,
+                                                  valor_contratado_year_actual1=valor_contratado1,
                                                   valor_contratado_year_actual2=valor_contratado2,
                                                   valor_contratado_year_actual3=valor_contratado3,
                                                   no_suplementos=cant_supl, valor_suplementos=valor_supl_total)
@@ -225,7 +241,7 @@ def __get_dict_contrato_registro(cont, area: str):
             cliente=cont.inversionista.name if cont.inversionista else None,
             no_contrato=cont.id,
             valor_total=area_ejecutora.total_contratado if area_ejecutora else None,
-            valor_contratado_year_actual1= area_ejecutora.cup_ejecutar_year_actual if area_ejecutora else None,
+            valor_contratado_year_actual1=area_ejecutora.cup_ejecutar_year_actual if area_ejecutora else None,
             valor_contratado_year_actual2=area_ejecutora.cup_ejecutar_year_actual + area_ejecutora.cuc_ejecutar_year_actual if area_ejecutora else None,
             valor_contratado_year_actual3=area_ejecutora.cuc_ejecutar_year_actual if area_ejecutora else None,
             fecha_inicio=cont.fecha_inicio, fecha_terminacion=cont.fecha_terminacion, no_suplementos=cont.cant_supl,
@@ -270,9 +286,9 @@ def __contrato_geipi_serializer(no_contrato=None, clasificacion=None, objeto_obr
 def __get_dict_contrato_geipi(contrato, area: str):
     try:
         area = contrato.areaejecutora_set.get(area__exact=area)
-        valor_contratado = area.total_ejecutar_year_actual/1000
-        valor_ejecutado = area.total_ejecutado_year_actual/1000
-        por_ejecutado = (valor_ejecutado/valor_contratado)*100
+        valor_contratado = area.total_ejecutar_year_actual / 1000
+        valor_ejecutado = area.total_ejecutado_year_actual / 1000
+        por_ejecutado = (valor_ejecutado / valor_contratado) * 100
         return __contrato_geipi_serializer(no_contrato=None,
                                            clasificacion=area.objeto_obra.tipo if area.objeto_obra else None,
                                            objeto_obra=area.objeto_obra.objeto if area.objeto_obra else None,
@@ -299,3 +315,55 @@ def get_informe_geipi_serializer(set_contrato: set, area: str):
     out.append(__contrato_geipi_serializer(valor_contratado=valor_contratado, valor_ejecutado_acumulado=valor_ejecutado,
                                            resumen=True))
     return out
+
+
+def __get_contrato_prov(contratos):
+    out = {}
+    for cont in contratos:
+        areas = cont.areaejecutora_set
+        if areas:
+            for p in prov:
+                ars = areas.filter(objeto_obra__provincia=p)
+                if ars:
+                    if p in out:
+                        out[p] = out[p].extend(ars.iterator())
+                    else:
+                        l = []
+                        l.extend(ars.iterator())
+                        out[p] = l
+    return out
+
+
+def __get_item_contrato(areas):
+    ej = {}
+    for area in areas:
+        if area.area in ej:
+            item = ej[area.area]
+            item['valor_contratado'] += area.total_ejecutar_year_actual
+            item['valor_ejecutado'] += area.total_ejecutado_year_actual
+            item['pronostico_ejecucion'] += area.pronostico
+            item['cierre_year_pro'] = item['valor_ejecutado'] + item['pronostico_ejecucion']
+            item['observaciones'] += area.get_observaciones
+        else:
+            value = {
+                'valor_contratado': area.total_ejecutar_year_actual,
+                'valor_ejecutado': area.total_ejecutado_year_actual,
+                'pronostico_ejecucion': area.pronostico,
+                'cierre_year_pro': area.total_ejecutado_year_actual + area.pronostico,
+                'observaciones': area.get_observaciones
+            }
+            ej[area.area] = value
+    return ej
+
+
+def get_resumen_geipi_serializer(contratos):
+    resumen_serializer = []
+    if contratos:
+        contratos = __get_contrato_prov(contratos)
+        for (key, value) in contratos.items():
+            out1 = {
+                'provincia': key,
+                'items': __get_item_contrato(value)
+            }
+            resumen_serializer.append(out1)
+    return resumen_serializer

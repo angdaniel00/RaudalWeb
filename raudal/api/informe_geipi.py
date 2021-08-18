@@ -1,7 +1,7 @@
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
-from raudal.serializers import InformeGEIPISerializer
-from raudal.models import InformeGEIPI
+from ..serializers import InformeGEIPISerializer
+from ..models import InformeGEIPI
 
 
 class InformeGEIPIViewSet(ModelViewSet):

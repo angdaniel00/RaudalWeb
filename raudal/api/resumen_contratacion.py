@@ -1,7 +1,7 @@
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
-from raudal.serializers import ResumenContratacionSerializer
-from raudal.models import ResumenContratacion
+from ..serializers import ResumenContratacionSerializer
+from ..models import ResumenContratacion
 
 
 class ResumenContratacionViewSet(ModelViewSet):

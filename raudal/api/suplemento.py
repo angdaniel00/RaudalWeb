@@ -1,7 +1,7 @@
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
-from raudal.serializers import SuplememntoSerializer
-from raudal.models import Suplemento
+from ..serializers import SuplememntoSerializer
+from ..models import Suplemento
 
 
 class SuplementoViewSet(ModelViewSet):

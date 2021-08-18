@@ -1,7 +1,7 @@
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
-from raudal.serializers import ContratoSerializer
-from raudal.models import Contrato
+from ..serializers import ContratoSerializer
+from ..models import Contrato
 
 
 class ContratoViewSet(ModelViewSet):

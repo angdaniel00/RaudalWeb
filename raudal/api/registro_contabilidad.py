@@ -1,7 +1,7 @@
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
-from raudal.serializers import RegistroContabilidadSerializer
-from raudal.models import RegistroContabilidad
+from ..serializers import RegistroContabilidadSerializer
+from ..models import RegistroContabilidad
 
 
 class RegistroContabilidadViewSet(ModelViewSet):

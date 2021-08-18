@@ -1,7 +1,7 @@
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
-from raudal.serializers import PlanPreparacionObrasSerializer
-from raudal.models import PlanPreparacionObras
+from ..serializers import PlanPreparacionObrasSerializer
+from ..models import PlanPreparacionObras
 
 
 class PlanPreparacionObrasViewSet(ModelViewSet):

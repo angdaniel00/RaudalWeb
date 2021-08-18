@@ -1,7 +1,7 @@
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
-from raudal.serializers import ObservacionSerializer
-from raudal.models import Observacion
+from ..serializers import ObservacionSerializer
+from ..models import Observacion
 
 
 class ObservacionViewSet(ModelViewSet):

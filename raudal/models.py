@@ -14,7 +14,13 @@ class Cliente(models.Model):
     created = models.DateTimeField(auto_now_add=True)
 
 
+class InformeProduccion(models.Model):
+    year = models.PositiveIntegerField(default=None)
+    created = models.DateTimeField(auto_now_add=True)
+
+
 class ResumenGEIPI(models.Model):
+    year = models.PositiveIntegerField(default=2021)#borrar el default
     created = models.DateTimeField(auto_now_add=True)
 
 
@@ -26,6 +32,7 @@ class Cierre(models.Model):
 
 
 class PlanPreparacionObras(models.Model):
+    year = models.PositiveIntegerField(default=None)
     created = models.DateTimeField(auto_now_add=True)
 
 
@@ -40,7 +47,7 @@ class Subcontrata(models.Model):
 class EntidadInversionista(Cliente):
 
     def __query_set(self, year):
-        return self.areaejecutora_set.filter(year=year, contrato__areaejecutora__cliente_id__exact=self.id)
+        return AreaEjecutora.objects.filter(year=year, contrato__areaejecutora__cliente_id__exact=self.id)
 
     def cant_contratos(self, year):
         return len(self.contrato_set.filter(year=year))
@@ -198,8 +205,6 @@ class InformeContratacion(models.Model):
     name = models.CharField(max_length=250, default='')
     year = models.PositiveIntegerField(default=None)
     resumen = models.ForeignKey(ResumenContratacion, on_delete=models.CASCADE, null=True)
-    plan = models.ForeignKey(PlanPreparacionObras, on_delete=models.CASCADE, null=True)
-    resumenGEIPI = models.ForeignKey(ResumenGEIPI, on_delete=models.CASCADE, null=True)
     cierre = models.OneToOneField(Cierre, on_delete=models.CASCADE, null=True)
     created = models.DateTimeField(auto_now_add=True)
 
@@ -214,8 +219,9 @@ class ObjetoObra(models.Model):
     @property
     def get_observaciones(self):
         out = ""
-        for obs in self.observacion_set.iterator():
-            out += (obs.observacion+" \n ")
+        if self.observacion_set.count() > 0:
+            for obs in self.observacion_set.iterator():
+                out += (obs.observacion+" \n ")
         return out
 
 
@@ -237,7 +243,7 @@ class InformeGEIPI(models.Model):
 
 class Contrato(models.Model):
     name = models.CharField(max_length=250, default='')
-    #no_contrato = models.CharField(max_length=250, unique=False, null=True, blank=True)
+    no_contrato = models.CharField(max_length=250, unique=False, null=True, blank=True)
     firma = models.DateField()
     year = models.PositiveIntegerField(default=0)
     cup = models.FloatField(default=0)
@@ -246,13 +252,17 @@ class Contrato(models.Model):
     fecha_terminacion = models.DateField()
     estado = models.CharField(max_length=25, default='')
     clasificacion = models.CharField(max_length=250, default='')
-    resumen_contabilidad = models.ForeignKey(RegistroContabilidad, on_delete=models.NOT_PROVIDED, null=True)
-    informe_contratacion = models.ForeignKey(InformeContratacion, on_delete=models.NOT_PROVIDED, null=True)
-    informe_geipi = models.ForeignKey(InformeGEIPI, on_delete=models.NOT_PROVIDED, null=True)
+    orden_trabajo = models.CharField(max_length=250, default=None)
+    resumen_contabilidad = models.ForeignKey(RegistroContabilidad, on_delete=models.SET_DEFAULT, default=None, null=True)
+    informe_contratacion = models.ForeignKey(InformeContratacion, on_delete=models.SET_DEFAULT, default=None, null=True)
+    informe_geipi = models.ForeignKey(InformeGEIPI, on_delete=models.SET_DEFAULT, default=None, null=True)
     inversionista = models.ForeignKey(EntidadInversionista, on_delete=models.CASCADE, null=True)
     organismo = models.ForeignKey(Organismo, on_delete=models.CASCADE, null=True)
     subcontrata = models.ForeignKey(Subcontrata, on_delete=models.CASCADE, null=True)
-    supl_cont = models.ForeignKey(SuplementoContrato, on_delete=models.NOT_PROVIDED, null=True)
+    supl_cont = models.ForeignKey(SuplementoContrato, on_delete=models.SET_DEFAULT, default=None, null=True)
+    resumen_geipi = models.ForeignKey(ResumenGEIPI, on_delete=models.SET_DEFAULT, default=None, null=True)
+    plan = models.ForeignKey(PlanPreparacionObras, on_delete=models.SET_DEFAULT, default=None, null=True)
+    inf_produccion = models.ForeignKey(InformeProduccion, on_delete=models.SET_DEFAULT, default=None, null=True)
     created = models.DateTimeField(auto_now_add=True)
 
     @property
@@ -351,9 +361,13 @@ class AreaEjecutora(models.Model):
     real_terminacion = models.DateField()
     year = models.PositiveIntegerField(default=None)
     pronostico = models.FloatField(default=0)
-    objeto_obra = models.ForeignKey(ObjetoObra, on_delete=models.CASCADE, null=True)
+    objeto_obra = models.ForeignKey(ObjetoObra, on_delete=models.CASCADE,default=None, null=True)
     contrato = models.ForeignKey(Contrato, on_delete=models.CASCADE, default=None, null=True)
     created = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def get_observaciones(self):
+        return self.objeto_obra.get_observaciones if self.objeto_obra else ""
 
     @property
     def cuc_ejecutar_year_actual(self):
@@ -426,7 +440,7 @@ class AreaEjecutora(models.Model):
 
 class Observacion(models.Model):
     observacion = models.CharField(max_length=250, default='')
-    objeto_obra = models.ForeignKey(ObjetoObra, on_delete=models.CASCADE, null=True)
+    objeto_obra = models.ForeignKey(ObjetoObra, on_delete=models.CASCADE,default=None, null=True)
     created = models.DateTimeField(auto_now_add=True)
 
 

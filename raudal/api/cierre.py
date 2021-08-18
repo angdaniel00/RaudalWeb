@@ -1,7 +1,7 @@
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
-from raudal.serializers import CierreSerializer
-from raudal.models import Cierre
+from ..serializers import CierreSerializer
+from ..models import Cierre
 
 
 class CierreViewSet(ModelViewSet):

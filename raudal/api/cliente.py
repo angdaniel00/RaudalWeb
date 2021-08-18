@@ -1,7 +1,7 @@
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
-from raudal.serializers import ClienteSerializer
-from raudal.models import Cliente
+from ..serializers import ClienteSerializer
+from ..models import Cliente
 
 
 class ClienteViewSet(ModelViewSet):

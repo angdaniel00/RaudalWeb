@@ -1,23 +1,25 @@
 from rest_framework import routers
 from django.urls import path
-from raudal.api.cierre import CierreViewSet
-from raudal.api.cliente import ClienteViewSet
-from raudal.api.contrato import ContratoViewSet
-from raudal.api.area_ejecutora import AreaEjecutoraViewSet
-from raudal.api.entidad_inversionista import EntidadInversionistaViewSet
-from raudal.api.informe_contratacion import InformeContratacionViewSet
-from raudal.api.informe_geipi import InformeGEIPIViewSet
-from raudal.api.objeto_obra import ObjetoObraViewSet
-from raudal.api.observacion import ObservacionViewSet
-from raudal.api.organismo import OrganismoViewSet
-from raudal.api.plan_preparacion_obras import PlanPreparacionObrasViewSet
-from raudal.api.registro_contabilidad import RegistroContabilidadViewSet
-from raudal.api.resumen_contratacion import ResumenContratacionViewSet
-from raudal.api.resumen_geipi import ResumenGEIPIViewSet
-from raudal.api.subcontrata import SubContrataViewSet
-from raudal.api.supl_cont import SuplContViewSet
-from raudal.api.suplemento import SuplementoViewSet
-from .view import RegistroContabilidadView, InformeGEIPIView
+from .api.cierre import CierreViewSet
+from .api.cliente import ClienteViewSet
+from .api.contrato import ContratoViewSet
+from .api.area_ejecutora import AreaEjecutoraViewSet
+from .api.entidad_inversionista import EntidadInversionistaViewSet
+from .api.informe_contratacion import InformeContratacionViewSet
+from .api.informe_geipi import InformeGEIPIViewSet
+from .api.objeto_obra import ObjetoObraViewSet
+from .api.observacion import ObservacionViewSet
+from .api.organismo import OrganismoViewSet
+from .api.plan_preparacion_obras import PlanPreparacionObrasViewSet
+from .api.registro_contabilidad import RegistroContabilidadViewSet
+from .api.resumen_contratacion import ResumenContratacionViewSet
+from .api.resumen_geipi import ResumenGEIPIViewSet
+from .api.subcontrata import SubContrataViewSet
+from .api.supl_cont import SuplContViewSet
+from .api.suplemento import SuplementoViewSet
+from .api.inf_produccion import InformeProduccionViewSet
+from .view import RegistroContabilidadView, InformeGEIPIView, ResumenGEIPIView, InfPlanPrepObrasView, SubContratasView, \
+    ProduccionView, InformeContratacionView, SuplContView
 
 
 router = routers.DefaultRouter()
@@ -38,10 +40,17 @@ router.register(r'resumen/geipi', ResumenGEIPIViewSet, basename='resumen_geipi')
 router.register(r'subcontrata', SubContrataViewSet, basename='subcontrata')
 router.register(r'suplemento', SuplementoViewSet, basename='suplemento')
 router.register(r'suplcont', SuplContViewSet, basename='suplemento_contrato')
+router.register(r'infproduccion', InformeProduccionViewSet, basename='informe_produccion')
 
 urlpatterns = [
+    path('inf/contratacion/<int:year>/', InformeContratacionView.as_view(), name='view_inf_contratacion'),
+    path('inf/suplcont/<int:year>/', SuplContView.as_view(), name='view_supl_cont'),
     path('registro_contabilidad/<str:mes>/<str:area>/', RegistroContabilidadView.as_view(), name='view_registro'),
-    path('informegeipi/<str:plan>/<str:area>/', InformeGEIPIView.as_view(), name='view_informe_geipi')
+    path('informegeipi/<str:plan>/<str:area>/', InformeGEIPIView.as_view(), name='view_informe_geipi'),
+    path('resumengeipi/<int:year>/', ResumenGEIPIView.as_view(), name='view_resumen_geipi'),
+    path('plan/<int:year>/', InfPlanPrepObrasView.as_view(), name='view_plan_obras'),
+    path('inf/subcontrata/<int:year>/<int:mes>/<str:prov>/', SubContratasView.as_view(), name='view_subcontrata'),
+    path('inf/produccion/<int:year>/', ProduccionView.as_view(), name='view_produccion')
 ]
 
 urlpatterns += router.urls

@@ -1,5 +1,5 @@
 from .models import *
-from raudal.util.util import get_fields_serializer
+from .util.util import get_fields_serializer
 from rest_framework.utils import model_meta
 from rest_framework.serializers import ModelSerializer, IntegerField, ListField, FloatField
 
@@ -61,7 +61,7 @@ class CierreSerializer(ModelSerializer):
 
 
 class ResumenGEIPISerializer(ModelSerializer):
-    list_informe_contratacion = ListField(required=False)
+    list_contratos = ListField(required=False)
 
     class Meta:
         model = ResumenGEIPI
@@ -70,9 +70,9 @@ class ResumenGEIPISerializer(ModelSerializer):
     def create(self, validated_data):
         resumen = ResumenGEIPI.objects.create(**get_fields_serializer(self.Meta.model, validated_data))
 
-        if 'list_informe_contratacion' in validated_data and len(validated_data['list_informe_contratacion']) > 0:
-            list_informe_contratacion = InformeContratacion.objects.filter(id__in=validated_data['list_informe_contratacion'])
-            resumen.informecontratacion_set.add(*list_informe_contratacion)
+        if 'list_contratos' in validated_data and len(validated_data['list_contratos']) > 0:
+            list_contratos = Contrato.objects.filter(id__in=validated_data['list_contratos'])
+            resumen.contrato_set.add(*list_contratos)
             resumen.save()
 
         return resumen
@@ -85,16 +85,49 @@ class ResumenGEIPISerializer(ModelSerializer):
             else:
                 setattr(instance, attr, value)
 
-        if 'list_informe_contratacion' in validated_data:
-            list_inf = InformeContratacion.objects.filter(id__in=validated_data['list_informe_contratacion'])
-            instance.informecontratacion_set.add(*list_inf)
+        if 'list_contratos' in validated_data:
+            list_inf = Contrato.objects.filter(id__in=validated_data['list_contratos'])
+            instance.contrato_set.add(*list_inf)
+
+        instance.save()
+        return instance
+
+
+class InfProduccionSerializer(ModelSerializer):
+    list_contratos = ListField(required=False)
+
+    class Meta:
+        model = InformeProduccion
+        fields = '__all__'
+
+    def create(self, validated_data):
+        inf = InformeProduccion.objects.create(**get_fields_serializer(self.Meta.model, validated_data))
+
+        if 'list_contratos' in validated_data and len(validated_data['list_contratos']) > 0:
+            list_contratos = Contrato.objects.filter(id__in=validated_data['list_contratos'])
+            inf.contrato_set.add(*list_contratos)
+            inf.save()
+
+        return inf
+
+    def update(self, instance: InformeProduccion, validated_data):
+        info = model_meta.get_field_info(instance)
+        for attr, value in validated_data.items():
+            if attr in info.relations and info.relations[attr].to_many:
+                pass
+            else:
+                setattr(instance, attr, value)
+
+        if 'list_contratos' in validated_data:
+            list_inf = Contrato.objects.filter(id__in=validated_data['list_contratos'])
+            instance.contrato_set.add(*list_inf)
 
         instance.save()
         return instance
 
 
 class PlanPreparacionObrasSerializer(ModelSerializer):
-    list_informe_contratacion = ListField(required=False)
+    list_contratos = ListField(required=False)
 
     class Meta:
         model = PlanPreparacionObras
@@ -103,9 +136,9 @@ class PlanPreparacionObrasSerializer(ModelSerializer):
     def create(self, validated_data):
         plan = PlanPreparacionObras.objects.create(**get_fields_serializer(self.Meta.model, validated_data))
 
-        if 'list_informe_contratacion' in validated_data and len(validated_data['list_informe_contratacion']) > 0:
-            list_informe_contratacion = InformeContratacion.objects.filter(id__in=validated_data['list_informe_contratacion'])
-            plan.informecontratacion_set.add(*list_informe_contratacion)
+        if 'list_contratos' in validated_data and len(validated_data['list_contratos']) > 0:
+            list_contratos = Contrato.objects.filter(id__in=validated_data['list_contratos'])
+            plan.contrato_set.add(*list_contratos)
             plan.save()
 
         return plan
@@ -118,9 +151,9 @@ class PlanPreparacionObrasSerializer(ModelSerializer):
             else:
                 setattr(instance, attr, value)
 
-        if 'list_informe_contratacion' in validated_data:
-            list_informe_contratacion = InformeContratacion.objects.filter(id__in=validated_data['list_informe_contratacion'])
-            instance.informecontratacion_set.add(*list_informe_contratacion)
+        if 'list_contratos' in validated_data:
+            list_contratos = Contrato.objects.filter(id__in=validated_data['list_contratos'])
+            instance.contrato_set.add(*list_contratos)
 
         instance.save()
         return instance
@@ -292,23 +325,15 @@ class RegistroContabilidadSerializer(ModelSerializer):
 
 class InformeContratacionSerializer(ModelSerializer):
     list_contrato = ListField(required=False)
-    id_plan_preparacion_obras = IntegerField(required=False)
     id_cierre = IntegerField(required=False)
-    id_resumen_geipi = IntegerField(required=False)
 
     class Meta:
         model = InformeContratacion
         fields = '__all__'
 
     def create(self, validated_data):
-        if 'id_plan_preparacion_obras' in validated_data:
-            validated_data['plan'] = PlanPreparacionObras.objects.get(id__exact=validated_data['id_plan_preparacion_obras'])
-
         if 'id_cierre' in validated_data:
             validated_data['cierre'] = Cierre.objects.get(id__exact='id_cierre')
-
-        if 'id_resumen_geipi' in validated_data:
-            validated_data['resumenGEIPI'] = ResumenGEIPI.objects.get(id__exact=validated_data['id_resumen_geipi'])
 
         inf = InformeContratacion.objects.create(**get_fields_serializer(self.Meta.model, validated_data))
 
@@ -322,21 +347,11 @@ class InformeContratacionSerializer(ModelSerializer):
     def update(self, instance: InformeContratacion, validated_data):
         info = model_meta.get_field_info(instance)
         for attr, value in validated_data.items():
-            if attr == 'plan':
-                if 'id_plan_preparacion_obras' not in validated_data or (instance.plan and validated_data['id_plan_preparacion_obras'] == instance.plan.id):
-                    continue
-                else:
-                    value = PlanPreparacionObras.objects.get(id__exact=validated_data['id_plan_preparacion_obras'])
             if attr == 'cierre':
                 if 'id_cierre' not in validated_data or (instance.cierre and validated_data['id_cierre'] == instance.cierre.id):
                     continue
                 else:
                     value = Cierre.objects.get(id__exact=validated_data['id_cierre'])
-            if attr == 'resumenGEIPI':
-                if 'id_resumen_geipi' not in validated_data or (instance.resumenGEIPI and validated_data['id_resumen_geipi'] == instance.resumenGEIPI.id):
-                    continue
-                else:
-                    value = ResumenGEIPI.objects.get(id__exact=validated_data['id_resumen_geipi'])
             if attr in info.relations and info.relations[attr].to_many:
                 pass
             else:
@@ -530,6 +545,8 @@ class ContratoSerializer(ModelSerializer):
     id_informe_contratacion = IntegerField(required=False)
     id_subcontrata = IntegerField(required=False)
     id_supl_cont = IntegerField(required=False)
+    id_plan = IntegerField(required=False)
+    id_inf_produccion = IntegerField(required=False)
     list_suplemento = ListField(required=False)
     list_area_ejecutora = ListField(required=False)
 
@@ -540,6 +557,9 @@ class ContratoSerializer(ModelSerializer):
     def create(self, validated_data):
         if 'id_informe_geipi' in validated_data and validated_data['id_informe_geipi']:
             validated_data['informe_geipi'] = InformeGEIPI.objects.get(id_exact=validated_data['id_informe_geipi'])
+
+        if 'id_inf_produccion' in validated_data and validated_data['id_inf_produccion']:
+            validated_data['id_inf_produccion'] = InformeProduccion.objects.get(id_exact=validated_data['id_inf_produccion'])
 
         if 'id_entidad_inversionista' in validated_data and validated_data['id_entidad_inversionista']:
             validated_data['inversionista'] =EntidadInversionista.objects.get(id_exact=validated_data['id_entidad_inversionista'])
@@ -558,6 +578,9 @@ class ContratoSerializer(ModelSerializer):
 
         if 'id_supl_cont' in validated_data and validated_data['id_supl_cont']:
             validated_data['supl_cont'] = SuplementoContrato.objects.get(id__exact=validated_data['id_supl_cont'])
+
+        if 'id_plan' in validated_data and validated_data['id_plan']:
+            validated_data['plan'] = PlanPreparacionObras.objects.get(id__exact=validated_data['id_plan'])
 
         cont = Contrato.objects.create(**get_fields_serializer(self.Meta.model, validated_data))
         change = False
@@ -585,6 +608,11 @@ class ContratoSerializer(ModelSerializer):
                     continue
                 else:
                     value = InformeGEIPI.objects.get(id__exact=validated_data['id_informe_geipi'])
+            if attr == 'inf_produccion':
+                if 'id_inf_produccion' not in validated_data or (instance.inf_produccion and validated_data['id_inf_produccion'] == instance.inf_produccion.id):
+                    continue
+                else:
+                    value = InformeProduccion.objects.get(id__exact=validated_data['id_inf_produccion'])
             if attr == 'inversionista':
                 if not 'id_entidad_inversionista' in validated_data or (instance.inversionista and validated_data['id_entidad_inversionista'] == instance.inversionista.id):
                     continue
@@ -615,6 +643,11 @@ class ContratoSerializer(ModelSerializer):
                     continue
                 else:
                     value = SuplementoContrato.objects.get(id__exact=validated_data['id_supl_cont'])
+            if attr == 'plan':
+                if 'id_plan' not in validated_data or (instance.plan and validated_data['id_plan'] == instance.plan.id):
+                    continue
+                else:
+                    value = PlanPreparacionObras.objects.get(id__exact=validated_data['id_plan'])
             if attr in info.relations and info.relations[attr].to_many:
                 pass
             else:
