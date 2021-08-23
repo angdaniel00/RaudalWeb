@@ -252,7 +252,7 @@ class Contrato(models.Model):
     fecha_terminacion = models.DateField()
     estado = models.CharField(max_length=25, default='')
     clasificacion = models.CharField(max_length=250, default='')
-    orden_trabajo = models.CharField(max_length=250, default=None)
+    orden_trabajo = models.CharField(max_length=250, default='')
     resumen_contabilidad = models.ForeignKey(RegistroContabilidad, on_delete=models.SET_DEFAULT, default=None, null=True)
     informe_contratacion = models.ForeignKey(InformeContratacion, on_delete=models.SET_DEFAULT, default=None, null=True)
     informe_geipi = models.ForeignKey(InformeGEIPI, on_delete=models.SET_DEFAULT, default=None, null=True)
