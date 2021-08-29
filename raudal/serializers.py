@@ -401,7 +401,6 @@ class InformeGEIPISerializer(ModelSerializer):
 class SuplememntoSerializer(ModelSerializer):
     id_contrato = IntegerField(required=False)
     id_objeto = IntegerField(required=False)
-    valor_actual_contrato_inc_supl = FloatField(required=False)
 
     class Meta:
         model = Suplemento
@@ -433,6 +432,7 @@ class SuplememntoSerializer(ModelSerializer):
             if attr in info.relations and info.relations[attr].to_many:
                 pass
             else:
+                print(attr)
                 setattr(instance, attr, value)
         instance.save()
         return instance
