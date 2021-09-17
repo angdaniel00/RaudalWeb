@@ -3,6 +3,7 @@ from rest_framework import generics, permissions, status
 from rest_framework.request import Request
 from rest_framework.response import Response
 from knox.models import AuthToken
+from .raudal_permissions import IsSuperUserOrSelfUser
 
 from .models import UserAuth
 from .serializers import LoginSerializer, UserSerializer, RegisterUserSerializer, UpdateUserSerializer, ChangePasswordSerializer
@@ -38,7 +39,7 @@ class LoginAPI(generics.GenericAPIView):
 
 class UserAPI(generics.RetrieveDestroyAPIView):
     serializer_class = UserSerializer
-    permission_classes = [permissions.IsAuthenticated, permissions.IsAdminUser]
+    permission_classes = [permissions.IsAuthenticated, IsSuperUserOrSelfUser]
     queryset = UserAuth.objects.all()
 
 
@@ -72,7 +73,7 @@ class UsernameRetrieveAPIView(generics.RetrieveAPIView):
 
 class ChangePasswordView(generics.UpdateAPIView):
     serializer_class = ChangePasswordSerializer
-    permissions = [permissions.IsAuthenticated]
+    permissions = [permissions.IsAuthenticated, IsSuperUserOrSelfUser]
     queryset = UserAuth.objects.all()
 
     def put(self, request, *args, **kwargs):
