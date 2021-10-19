@@ -237,7 +237,7 @@ class RegistroContabilidad(models.Model):
 class InformeGEIPI(models.Model):
     provincia = models.CharField(max_length=250, default='')
     empresa = models.CharField(max_length=250, default='')
-    plan_anual = models.PositiveIntegerField(default=None)
+    plan_anual = models.PositiveIntegerField(default=None, null=True)
     created = models.DateTimeField(auto_now_add=True)
 
 
